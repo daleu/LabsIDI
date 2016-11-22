@@ -43,7 +43,7 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
     // Program
     QOpenGLShaderProgram *program;
     // Internal vars
-    float scale;
+    float scale,grades;
     glm::vec3 pos;
     Model m;
 };

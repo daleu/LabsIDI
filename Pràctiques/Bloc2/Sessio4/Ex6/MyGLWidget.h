@@ -40,10 +40,11 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
     GLuint transLoc,projLoc,viewLoc;
     // VAO i VBO names
     GLuint VAO_Casa, VBO_CasaPos, VBO_CasaCol;
+    GLuint VAO_Terra, VBO_PosTerra, VBO_ColTerra;
     // Program
     QOpenGLShaderProgram *program;
     // Internal vars
-    float scale;
+    float scale,grades;
     glm::vec3 pos;
     Model m;
 };

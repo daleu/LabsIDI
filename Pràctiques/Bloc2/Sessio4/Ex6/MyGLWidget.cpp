@@ -6,6 +6,7 @@ MyGLWidget::MyGLWidget (QWidget* parent) : QOpenGLWidget(parent)
 {
   setFocusPolicy(Qt::ClickFocus);  // per rebre events de teclat
   scale = 1.0f;
+  grades = float(M_PI/4);
 }
 
 MyGLWidget::~MyGLWidget ()
@@ -30,7 +31,7 @@ void MyGLWidget::initializeGL ()
 void MyGLWidget::paintGL () 
 {
   // Esborrem el frame-buffer
-  glClear (GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
+  glClear (GL_COLOR_BUFFER_BIT);
 
   // Carreguem la transformació de model
   modelTransform ();
@@ -49,6 +50,7 @@ void MyGLWidget::modelTransform ()
   // Matriu de transformació de model
   glm::mat4 transform (1.0f);
   transform = glm::scale(transform, glm::vec3(scale));
+  transform = glm::rotate(transform,grades,glm::vec3(0.0,1.0,0.0));
   glUniformMatrix4fv(transLoc, 1, GL_FALSE, &transform[0][0]);
 }
 
@@ -81,6 +83,9 @@ void MyGLWidget::keyPressEvent(QKeyEvent* event)
     case Qt::Key_D: { // escalar a més petit
       scale -= 0.05;
       break;
+    }
+    case Qt::Key_R:{
+      grades += float(M_PI/4);
     }
     default: event->ignore(); break;
   }
@@ -155,7 +160,5 @@ void MyGLWidget::carregaShaders()
   transLoc = glGetUniformLocation(program->programId(), "TG");
   projLoc = glGetUniformLocation (program->programId(), "proj");
   viewLoc = glGetUniformLocation (program->programId(), "view");
-  
-  glEnable(GL_DEPTH_TEST);
 }
 

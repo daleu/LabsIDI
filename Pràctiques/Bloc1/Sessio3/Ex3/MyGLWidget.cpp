@@ -26,6 +26,7 @@ void MyGLWidget::initializeGL ()
   scl = 0.5;
   grades = float(M_PI/4);
   carregaShaders();
+  load();
   createBuffers();
   setMouseTracking(true);
 }
@@ -150,6 +151,7 @@ void MyGLWidget::keyPressEvent (QKeyEvent *e) {
 
 void MyGLWidget::mouseMoveEvent(QMouseEvent *e)		// AQUESTA ES LA FUNCIO QUE FA QUE S'ESCALI DIFERENT SEGONS MOGUIS EL MOUSE
 {
+  makeCurrent ();
     int xnew=e->x();
     int ynew=e->y();
 

@@ -6,6 +6,7 @@ MyGLWidget::MyGLWidget (QWidget* parent) : QOpenGLWidget(parent)
 {
   setFocusPolicy(Qt::ClickFocus);  // per rebre events de teclat
   scale = 1.0f;
+  grades = float(M_PI/4);
 }
 
 MyGLWidget::~MyGLWidget ()
@@ -49,6 +50,7 @@ void MyGLWidget::modelTransform ()
   // Matriu de transformació de model
   glm::mat4 transform (1.0f);
   transform = glm::scale(transform, glm::vec3(scale));
+  transform = glm::rotate(transform,grades,glm::vec3(0.0,1.0,0.0));
   glUniformMatrix4fv(transLoc, 1, GL_FALSE, &transform[0][0]);
 }
 
@@ -76,11 +78,16 @@ void MyGLWidget::keyPressEvent(QKeyEvent* event)
     makeCurrent();
     case Qt::Key_S: { // escalar a més gran
       scale += 0.05;
+      modelTransform();
       break;
     }
     case Qt::Key_D: { // escalar a més petit
       scale -= 0.05;
+      modelTransform();
       break;
+    }
+    case Qt::Key_R:{
+      grades += float(M_PI/4);
     }
     default: event->ignore(); break;
   }
@@ -89,22 +96,6 @@ void MyGLWidget::keyPressEvent(QKeyEvent* event)
 
 void MyGLWidget::createBuffers () 
 {
-  // Dades de la caseta
-  // Dos VBOs, un amb posició i l'altre amb color
-  /*glm::vec3 posicio[5] = {
-	glm::vec3(-0.5, -1.0, -0.5),
-	glm::vec3( 0.5, -1.0, -0.5),
-	glm::vec3(-0.5,  0.0, -0.5),
-	glm::vec3( 0.5,  0.0, -0.5),
-	glm::vec3( 0.0,  0.6, -0.5)
-  }; 
-  glm::vec3 color[5] = {
-	glm::vec3(1,0,0),
-	glm::vec3(0,1,0),
-	glm::vec3(0,0,1),
-	glm::vec3(1,0,0),
-	glm::vec3(0,1,0)
-  };*/
 
   // Creació del Vertex Array Object per pintar
   glGenVertexArrays(1, &VAO_Casa);
@@ -155,7 +146,7 @@ void MyGLWidget::carregaShaders()
   transLoc = glGetUniformLocation(program->programId(), "TG");
   projLoc = glGetUniformLocation (program->programId(), "proj");
   viewLoc = glGetUniformLocation (program->programId(), "view");
-  
+
   glEnable(GL_DEPTH_TEST);
 }
 
