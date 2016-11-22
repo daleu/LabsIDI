@@ -31,6 +31,7 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
     void createBuffers ();
     void carregaShaders ();
     void modelTransform ();
+    void modelTransform2 ();
     void projectTransform();
     void viewTransform();
 
@@ -39,8 +40,7 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
     // uniform locations
     GLuint transLoc,projLoc,viewLoc;
     // VAO i VBO names
-    GLuint VAO_Casa, VBO_CasaPos, VBO_CasaCol;
-    GLuint VAO_Terra, VBO_PosTerra, VBO_ColTerra;
+    GLuint VAO_Casa, VBO_CasaPos, VBO_CasaCol,VAO_Terra,VBO_TerraPos,VBO_TerraCol;
     // Program
     QOpenGLShaderProgram *program;
     // Internal vars

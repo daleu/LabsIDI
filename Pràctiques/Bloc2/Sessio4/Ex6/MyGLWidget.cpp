@@ -31,16 +31,18 @@ void MyGLWidget::initializeGL ()
 void MyGLWidget::paintGL () 
 {
   // Esborrem el frame-buffer
-  glClear (GL_COLOR_BUFFER_BIT);
-
-  // Carreguem la transformació de model
-  modelTransform ();
+  glClear (GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 
   // Activem el VAO per a pintar la caseta 
+  //HOMMER
+  modelTransform ();
   glBindVertexArray (VAO_Casa);
-
-  // pintem
   glDrawArrays(GL_TRIANGLES, 0, m.faces().size()*3);
+
+  //TERRA
+  modelTransform2();
+  glBindVertexArray (VAO_Terra);  
+  glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
   glBindVertexArray (0);
 }
@@ -54,6 +56,15 @@ void MyGLWidget::modelTransform ()
   glUniformMatrix4fv(transLoc, 1, GL_FALSE, &transform[0][0]);
 }
 
+void MyGLWidget::modelTransform2 () 
+{
+  // Matriu de transformació de model
+  glm::mat4 transform (1.0f);
+  transform = glm::scale(transform, glm::vec3(scale));
+  //transform = glm::rotate(transform,grades,glm::vec3(0.0,1.0,0.0));
+  glUniformMatrix4fv(transLoc, 1, GL_FALSE, &transform[0][0]);
+}
+
 void MyGLWidget::projectTransform () 
 {
   // Matriu de transformació de model
@@ -63,7 +74,7 @@ void MyGLWidget::projectTransform ()
 
 void MyGLWidget::viewTransform () 
 {
-  glm::mat4 View = glm::lookAt (glm::vec3(0,0,1), glm::vec3(0,0,0), glm::vec3(0,1,0));
+  glm::mat4 View = glm::lookAt (glm::vec3(0,0,2), glm::vec3(0,0,0), glm::vec3(0,1,0));
   glUniformMatrix4fv (viewLoc, 1, GL_FALSE, &View[0][0]);
 }
 
@@ -78,10 +89,12 @@ void MyGLWidget::keyPressEvent(QKeyEvent* event)
     makeCurrent();
     case Qt::Key_S: { // escalar a més gran
       scale += 0.05;
+      modelTransform();
       break;
     }
     case Qt::Key_D: { // escalar a més petit
       scale -= 0.05;
+      modelTransform();
       break;
     }
     case Qt::Key_R:{
@@ -94,23 +107,9 @@ void MyGLWidget::keyPressEvent(QKeyEvent* event)
 
 void MyGLWidget::createBuffers () 
 {
-  // Dades de la caseta
-  // Dos VBOs, un amb posició i l'altre amb color
-  /*glm::vec3 posicio[5] = {
-	glm::vec3(-0.5, -1.0, -0.5),
-	glm::vec3( 0.5, -1.0, -0.5),
-	glm::vec3(-0.5,  0.0, -0.5),
-	glm::vec3( 0.5,  0.0, -0.5),
-	glm::vec3( 0.0,  0.6, -0.5)
-  }; 
-  glm::vec3 color[5] = {
-	glm::vec3(1,0,0),
-	glm::vec3(0,1,0),
-	glm::vec3(0,0,1),
-	glm::vec3(1,0,0),
-	glm::vec3(0,1,0)
-  };*/
 
+  
+  //CARREGA HOMER///////////////////////////////////////////////////////////////////////////////////////
   // Creació del Vertex Array Object per pintar
   glGenVertexArrays(1, &VAO_Casa);
   glBindVertexArray(VAO_Casa);
@@ -130,7 +129,41 @@ void MyGLWidget::createBuffers ()
   // Activem l'atribut colorLoc
   glVertexAttribPointer(colorLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
   glEnableVertexAttribArray(colorLoc);
+  
+  //CARREGA TERRA///////////////////////////////////////////////////////////////////////////////////////
+  
+  glm::vec3 posterra[4] = {
+	glm::vec3(-1.0, -1.0, -1.0),
+	glm::vec3(-1.0, -1.0, 1.0),
+	glm::vec3(1.0, -1.0, -1.0),
+	glm::vec3(1.0, -1.0, 1.0)
+  }; 
+  glm::vec3 colterra[4] = {
+	glm::vec3(0,0,1),
+	glm::vec3(0,0,1),
+	glm::vec3(0,0,1),
+	glm::vec3(0,0,1)
+  };
+  
+  glGenVertexArrays(1, &VAO_Terra);
+  glBindVertexArray(VAO_Terra);
 
+  glGenBuffers(1, &VBO_TerraPos);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO_TerraPos);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(posterra), posterra, GL_STATIC_DRAW);
+
+  // Activem l'atribut vertexLoc
+  glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(vertexLoc);
+
+  glGenBuffers(1, &VBO_TerraCol);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO_TerraCol);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(colterra), colterra, GL_STATIC_DRAW);
+
+  // Activem l'atribut colorLoc
+  glVertexAttribPointer(colorLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(colorLoc);
+  
   glBindVertexArray (0);
 }
 
@@ -160,5 +193,7 @@ void MyGLWidget::carregaShaders()
   transLoc = glGetUniformLocation(program->programId(), "TG");
   projLoc = glGetUniformLocation (program->programId(), "proj");
   viewLoc = glGetUniformLocation (program->programId(), "view");
+
+  glEnable(GL_DEPTH_TEST);
 }
 
