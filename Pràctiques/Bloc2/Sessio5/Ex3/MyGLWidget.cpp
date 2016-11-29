@@ -72,16 +72,16 @@ void MyGLWidget::projectTransform ()
 {
   // glm::perspective (FOV en radians, ra window, znear, zfar)
   float ra= double(width())/double(height());
-  if(ra < 1) angle_prespectiva= atan((y_max-y_min)/2);
-  
-  glm::mat4 Proj = glm::perspective (2*angle_prespectiva, ra, 1.0f,2.0f+z_max-z_min);
+  if(ra < 1) angle_prespectiva= atan((y_max-y_min));
+  angle_prespectiva= asin(radiCapsa/(radiCapsa+2));
+  glm::mat4 Proj = glm::perspective (2*angle_prespectiva, ra, 1.0f,2.0f+radiCapsa*2);
   glUniformMatrix4fv (projLoc, 1, GL_FALSE, &Proj[0][0]);
 }
 
 void MyGLWidget::viewTransform () 
 {
   // glm::lookAt (OBS, VRP, UP)
-  glm::mat4 View = glm::lookAt (glm::vec3(0,y_mid,(z_max-z_min)/2+2), glm::vec3(0,y_mid,0), glm::vec3(0,1,0));
+  glm::mat4 View = glm::lookAt (glm::vec3(0,y_mid,radiCapsa+2), glm::vec3(0,y_mid,0), glm::vec3(0,1,0));
   glUniformMatrix4fv (viewLoc, 1, GL_FALSE, &View[0][0]);
 }
 
@@ -228,9 +228,9 @@ void MyGLWidget::esferaContenedoraHomer()
 
     //Calcular centre base capsa contenidora
     x_mid = (x_max+x_min)/2;
-    y_mid = (y_min);
+    y_mid = (y_max+y_max)/2;
     z_mid = (z_max+z_min)/2;
 
-    radiCapsa = x_max-x_min;
+    radiCapsa = sqrt((pow(x_max-x_min,2))+(pow(y_max-y_min,2))+(pow(z_max-z_min,2)));
 }
 
