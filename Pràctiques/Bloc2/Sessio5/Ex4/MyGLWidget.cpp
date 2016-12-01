@@ -25,10 +25,12 @@ void MyGLWidget::initializeGL ()
   esferaContenedoraHomer();
   
   glClearColor(0.5, 0.7, 1.0, 1.0); // defineix color de fons (d'esborrat)
+  
   carregaShaders();
+  createBuffers();
+  
   projectTransform();
   viewTransform();
-  createBuffers();
 }
 
 void MyGLWidget::paintGL () 
@@ -43,26 +45,29 @@ void MyGLWidget::paintGL ()
   glDrawArrays(GL_TRIANGLES, 0, m.faces().size()*3);
 
   //TERRA
-  modelTransform2();
-  glBindVertexArray (VAO_Terra);  
-  glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+  //modelTransform2();
+  //glBindVertexArray (VAO_Terra);
+  //glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
   glBindVertexArray (0);
 }
 
 void MyGLWidget::modelTransform () 
 {
-  // Matriu de transformació de model
+  //Matriu de transformació de model
   glm::mat4 transform (1.0f);
+  //transform = glm::translate(transform, glm::vec3(0,0,0));
+  transform = glm::translate(transform, glm::vec3(-x_mid,-y_mid,-z_mid));
   //transform = glm::scale(transform, glm::vec3(scale));
-  transform = glm::rotate(transform,grades,glm::vec3(0.0,1.0,0.0));
+  //transform = glm::rotate(transform,grades,glm::vec3(0.0,1.0,0.0));
   glUniformMatrix4fv(transLoc, 1, GL_FALSE, &transform[0][0]);
 }
 
 void MyGLWidget::modelTransform2 () 
 {
-  // Matriu de transformació de model
+  // Matriu de transformació de terra
   glm::mat4 transform (1.0f);
+  //transform = glm::translate(transform, glm::vec3(0,0,0));
   transform = glm::scale(transform, glm::vec3(scale));
   //transform = glm::rotate(transform,grades,glm::vec3(0.0,1.0,0.0));
   glUniformMatrix4fv(transLoc, 1, GL_FALSE, &transform[0][0]);
@@ -73,15 +78,15 @@ void MyGLWidget::projectTransform ()
   // glm::perspective (FOV en radians, ra window, znear, zfar)
   float ra= double(width())/double(height());
   if(ra < 1) angle_prespectiva= atan((y_max-y_min));
-  angle_prespectiva= asin(radiCapsa/(radiCapsa+2));
-  glm::mat4 Proj = glm::perspective (2*angle_prespectiva, ra, 1.0f,10.0f+radiCapsa*2);
+  angle_prespectiva= asin(radiCapsa/(2*radiCapsa));
+  glm::mat4 Proj = glm::perspective (2*angle_prespectiva, ra, z_min,z_max);
   glUniformMatrix4fv (projLoc, 1, GL_FALSE, &Proj[0][0]);
 }
 
 void MyGLWidget::viewTransform () 
 {
   // glm::lookAt (OBS, VRP, UP)
-  glm::mat4 View = glm::lookAt (glm::vec3(x_mid,y_mid,radiCapsa+2), glm::vec3(x_mid,y_mid,radiCapsa), glm::vec3(0,1,0));
+  glm::mat4 View = glm::lookAt (glm::vec3(0,0,-2*radiCapsa), glm::vec3(0,0,0), glm::vec3(0,1,0));
   glUniformMatrix4fv (viewLoc, 1, GL_FALSE, &View[0][0]);
 }
 
@@ -218,11 +223,11 @@ void MyGLWidget::esferaContenedoraHomer()
 	  if(m.vertices()[i] > x_max) x_max = m.vertices()[i];
 	  if(m.vertices()[i] < x_min) x_min = m.vertices()[i];
 
-	  if(m.vertices()[i+1] > y_max) y_max = m.vertices()[i];
-	  if(m.vertices()[i+1] < y_min) y_min = m.vertices()[i];
+	  if(m.vertices()[i+1] > y_max) y_max = m.vertices()[i+1];
+	  if(m.vertices()[i+1] < y_min) y_min = m.vertices()[i+1];
 
-	  if(m.vertices()[i+2] > z_max) z_max = m.vertices()[i];
-	  if(m.vertices()[i+2] < z_min) z_min = m.vertices()[i];
+	  if(m.vertices()[i+2] > z_max) z_max = m.vertices()[i+2];
+	  if(m.vertices()[i+2] < z_min) z_min = m.vertices()[i+2];
 	}
     }
 
@@ -230,7 +235,13 @@ void MyGLWidget::esferaContenedoraHomer()
     x_mid = (x_max+x_min)/2;
     y_mid = (y_max+y_min)/2;
     z_mid = (z_max+z_min)/2;
+    
+    std::cout << "Aixó es la x del centre la capsa: " << x_mid << std::endl;
+    std::cout << "Aixó es la y del centre la capsa: " << y_mid << std::endl;
+    std::cout << "Aixó es la z del centre la capsa: " << z_mid << std::endl;
 
-    radiCapsa = sqrt((pow(x_max-x_min,2))+(pow(y_max-y_min,2))+(pow(z_max-z_min,2)));
+    radiCapsa = sqrt((pow(x_max-x_min,2))+(pow(y_max-y_min,2))+(pow(z_max-z_min,2)))/2;
+    
+    std::cout << "Aixó es el radi la capsa: " << radiCapsa << std::endl;
 }
 
